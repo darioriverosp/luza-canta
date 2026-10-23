@@ -326,6 +326,22 @@ body {
 .instalar p { margin: 0; flex: 1; font-weight: 700; font-size: 0.95rem; }
 .instalar .boton { width: auto; min-height: 48px; font-size: 1rem; padding: 10px 16px; }
 
+/* ---------- Compartir ---------- */
+.compartir {
+  text-align: center; color: #fff;
+  background: rgba(255, 255, 255, 0.16);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 22px; padding: 16px 14px; margin-top: 24px;
+}
+.compartir p { margin: 0 0 12px; font-weight: 700; line-height: 1.5; }
+.compartir .fila-botones { margin-top: 0; }
+.compartir .fila-botones .boton { font-size: 1rem; padding: 12px 8px; }
+.compartir .enlace {
+  margin: 12px 0 0; padding: 10px; border-radius: 14px; background: rgba(0, 0, 0, 0.2);
+  user-select: all; word-break: break-all;
+}
+.compartir a.boton { display: flex; align-items: center; justify-content: center; text-decoration: none; }
+
 /* ---------- Ajustes ---------- */
 dialog {
   border: 0; border-radius: var(--radio); padding: 22px 18px; width: min(520px, calc(100% - 32px));

@@ -6,6 +6,12 @@ Todas las versiones de **Luza Canta** (antes *Lucesita Canta*). Formato basado e
 
 ---
 
+## [2.4.0] — 2026-10-23 · Compartir la app
+### Agregado
+- Apartado **Compartir** encima del pie (en *Cantar* y *Mis canciones*): en el celular abre el menú de
+  compartir del teléfono con un mensaje y el enlace; en el ordenador ofrece *WhatsApp* y *Copiar enlace*
+  (si el navegador no deja copiar, muestra el enlace para copiarlo a mano).
+
 ## [2.3.0] — 2026-10-16 · Créditos, rendimiento y documentación
 ### Agregado
 - Pie de página: *© 2026 Hecho con código y 💙 por Gonzalo Dario Riveros Plaza* con enlace a su web.

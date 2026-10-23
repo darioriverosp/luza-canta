@@ -57,6 +57,15 @@ const luces = Array.from({ length: 34 }, (_, i) => ({
         </div>
       </header>
       <slot />
+      <section class="compartir">
+        <p><b>💌 ¿Te gusta Luza Canta?</b><br />Pásasela a tus amigos para que canten contigo</p>
+        <button class="boton boton-sol" id="boton-compartir" hidden>📤 Compartir Luza Canta</button>
+        <div class="fila-botones" id="compartir-otros">
+          <a class="boton boton-menta" id="compartir-wa" target="_blank" rel="noopener">💬 WhatsApp</a>
+          <button class="boton boton-suave" id="copiar-enlace">🔗 Copiar enlace</button>
+        </div>
+        <p class="enlace" id="enlace-app" hidden></p>
+      </section>
       <footer class="pie">
         © 2026 Hecho con código y 💙 por{" "}
         <a href="https://darioriverosp.netlify.app/" target="_blank" rel="noopener">Gonzalo Dario Riveros Plaza</a>
@@ -115,6 +124,34 @@ const luces = Array.from({ length: 34 }, (_, i) => ({
         caja.hidden = true;
       });
       window.addEventListener('appinstalled', () => (caja.hidden = true));
+
+      // Compartir la app: en el celular abre el menú de compartir; si no se puede, WhatsApp o copiar el enlace
+      const enlace = location.origin + '/';
+      const mensaje = '🎤 ¡Mira Luza Canta! Le quita la voz a tus canciones para cantar karaoke:';
+      const botonCompartir = document.getElementById('boton-compartir')!;
+      const botonCopiar = document.getElementById('copiar-enlace')!;
+      (document.getElementById('compartir-wa') as HTMLAnchorElement).href =
+        'https://wa.me/?text=' + encodeURIComponent(`${mensaje} ${enlace}`);
+      if (navigator.share) {
+        botonCompartir.hidden = false;
+        document.getElementById('compartir-otros')!.hidden = true;
+        botonCompartir.addEventListener('click', () =>
+          navigator.share({ title: 'Luza Canta', text: mensaje, url: enlace }).catch(() => {})
+        );
+      }
+      botonCopiar.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(enlace);
+          botonCopiar.textContent = '✅ ¡Copiado!';
+        } catch {
+          // Sin permiso para copiar: se muestra el enlace para copiarlo a mano
+          const texto = document.getElementById('enlace-app')!;
+          texto.textContent = enlace;
+          texto.hidden = false;
+          botonCopiar.textContent = '👇 Cópialo aquí';
+        }
+        setTimeout(() => (botonCopiar.textContent = '🔗 Copiar enlace'), 2500);
+      });
 
       if ('serviceWorker' in navigator && import.meta.env.PROD) {
         navigator.serviceWorker.register('/sw.js').catch(() => {});

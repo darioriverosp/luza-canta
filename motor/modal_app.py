@@ -36,7 +36,17 @@ progreso = modal.Dict.from_name("luza-progreso", create_if_missing=True)
 
 
 class ErrorAmable(Exception):
-    """Error con un mensaje pensado para mostrárselo a la usuaria tal cual."""
+    """Error con un mensaje pensado para mostrárselo a la usuaria tal cual.
+
+    El segundo argumento (opcional) es el detalle técnico: /estado lo devuelve aparte para diagnosticar.
+    """
+
+    def __str__(self):
+        return self.args[0]
+
+    @property
+    def detalle(self):
+        return self.args[1] if len(self.args) > 1 else ""
 
 
 @app.function(
@@ -122,7 +132,10 @@ def _procesar(origen: dict, trabajo, avisar) -> dict:
                 info = ydl.extract_info(origen["link"], download=True)
         except Exception as e:  # noqa: BLE001
             print(f"yt-dlp: {e}", flush=True)
-            raise ErrorAmable("YouTube no dejó bajar esta canción 😕. Descárgala aparte y usa “Subir MP3”.")
+            raise ErrorAmable(
+                "YouTube no dejó bajar esta canción 😕. Descárgala aparte y usa “Subir MP3”.",
+                f"yt-dlp {yt_dlp.version.__version__}: {str(e)[:500]}",
+            )
         archivos = list(trabajo.glob("descarga.*"))
         if not info or not archivos:
             raise ErrorAmable(f"No se pudo bajar. ¿La canción dura más de {MAX_MINUTOS} minutos?")
@@ -225,7 +238,7 @@ def web():
         try:
             r = resultado(id_)
         except ErrorAmable as e:
-            return {"listo": False, "error": str(e)}
+            return {"listo": False, "error": str(e), "detalle": e.detalle}
         except Exception as e:  # noqa: BLE001
             print(f"estado {id_}: {e!r}", flush=True)
             return {"listo": False, "error": "Algo salió mal con el motor. Intenta de nuevo."}

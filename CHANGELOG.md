@@ -6,6 +6,12 @@ Todas las versiones de **Luza Canta** (antes *Lucesita Canta*). Formato basado e
 
 ---
 
+## [2.5.2] — 2026-10-24 · Compartir funciona aunque la app esté recién instalada
+### Corregido
+- Si el service worker aún no estaba listo (app recién instalada o actualizada), *Compartir → Luza* daba
+  "Page not found": la regla de `netlify.toml` solo redirige visitas normales, no envíos. Ahora una Edge
+  Function de Netlify (`netlify/edge-functions/recibir.js`) saca el link y abre la portada con él.
+
 ## [2.5.1] — 2026-10-24 · Compartir desde YouTube y WhatsApp
 ### Corregido
 - **Compartir → Luza no hacía nada:** el service worker tenía un error de escritura desde la 2.0 (la expresión

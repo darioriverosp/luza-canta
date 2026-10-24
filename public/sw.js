@@ -1,5 +1,5 @@
 // Service worker de Luza Canta: permite instalarla y abrirla aunque haya mala señal.
-const CACHE = 'luza-v3';
+const CACHE = 'luza-v4';
 const COMPARTIDO = 'luza-compartido';
 const BASICOS = ['/', '/historial', '/manifest.webmanifest', '/icons/icono-192.png', '/icons/icono.svg'];
 
@@ -10,7 +10,7 @@ self.addEventListener('install', (e) => {
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys()
-      .then((ks) => Promise.all(ks.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then((ks) => Promise.all(ks.filter((k) => k !== CACHE && k !== COMPARTIDO).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
@@ -27,7 +27,8 @@ async function recibir(req) {
     return Response.redirect('/?compartido=1', 303);
   }
   const texto = `${datos.get('url') || ''} ${datos.get('text') || ''}`;
-  const link = texto.match(/https?://S+/);
+  // YouTube manda el link dentro de "text" (p. ej. "https://youtu.be/abc?si=…"); WhatsApp a veces en "url"
+  const link = texto.match(/https?:\/\/\S+/);
   return Response.redirect(link ? `/?link=${encodeURIComponent(link[0])}` : '/', 303);
 }
 

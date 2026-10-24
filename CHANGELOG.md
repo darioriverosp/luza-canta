@@ -6,6 +6,13 @@ Todas las versiones de **Luza Canta** (antes *Lucesita Canta*). Formato basado e
 
 ---
 
+## [2.5.1] — 2026-10-24 · Compartir desde YouTube y WhatsApp
+### Corregido
+- **Compartir → Luza no hacía nada:** el service worker tenía un error de escritura desde la 2.0 (la expresión
+  que busca el link había perdido sus `\`) y el navegador no lo instalaba. Ahora, al compartir un video
+  desde YouTube, el link se pega solo en la pestaña *YouTube*; y vuelven a llegar los audios de WhatsApp.
+- El service worker ya no borra al actualizarse la canción compartida que estaba esperando (`luza-compartido`).
+
 ## [2.5.0] — 2026-10-24 · YouTube vuelve a funcionar (RapidAPI)
 ### Corregido
 - **Link de YouTube:** YouTube bloqueaba a Modal por ser un servidor en la nube (*"Sign in to confirm you're

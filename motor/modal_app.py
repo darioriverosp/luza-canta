@@ -67,6 +67,29 @@ def procesar(origen: dict) -> dict:
         shutil.rmtree(trabajo, ignore_errors=True)
 
 
+_ytdlp_al_dia = False
+
+
+def _actualizar_ytdlp():
+    """YouTube cambia seguido y un yt-dlp viejo deja de bajar: se pone al día una vez por contenedor.
+
+    La imagen guarda la versión del día en que se construyó, así que sin esto se quedaría vieja para siempre.
+    Se usa la versión "nightly" (--pre), que es la que yt-dlp recomienda para YouTube.
+    """
+    global _ytdlp_al_dia
+    if _ytdlp_al_dia:
+        return
+    import subprocess
+    import sys
+
+    r = subprocess.run(
+        [sys.executable, "-m", "pip", "install", "-q", "-U", "--pre", "yt-dlp[default]"],
+        capture_output=True, text=True, timeout=120,
+    )
+    print(f"yt-dlp: actualización {'ok' if r.returncode == 0 else 'falló: ' + r.stderr[-500:]}", flush=True)
+    _ytdlp_al_dia = True  # aunque falle, no se reintenta en cada canción: se usa la versión de la imagen
+
+
 def _procesar(origen: dict, trabajo, avisar) -> dict:
     import json
     import os
@@ -76,8 +99,11 @@ def _procesar(origen: dict, trabajo, avisar) -> dict:
     titulo = origen.get("titulo") or "Canción"
 
     if origen.get("link"):
+        avisar("Preparando la descarga de YouTube… ▶️")
+        _actualizar_ytdlp()
         import yt_dlp
 
+        print(f"yt-dlp {yt_dlp.version.__version__}", flush=True)
         avisar("Bajando la canción de YouTube… ▶️")
         opciones = {
             "format": "bestaudio/best",

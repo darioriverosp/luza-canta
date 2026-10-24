@@ -103,9 +103,20 @@ luza-canta/
 Abrir la web en **Chrome** → botón amarillo **Instalar** (o menú ⋮ → *Agregar a pantalla principal*).
 Si ya estaba instalada una versión anterior, desinstalarla y volver a instalar.
 
-## Link de YouTube (cookies)
-YouTube bloquea las descargas desde servidores en la nube. El motor usa las cookies de una **cuenta de Google
-secundaria** (nunca la principal):
+## Link de YouTube
+YouTube bloquea las descargas desde servidores en la nube como Modal. Por eso el motor pide el MP3 al servicio
+**YouTube MP3** de RapidAPI ([youtube-mp36](https://rapidapi.com/niketagup/api/youtube-mp36)), que baja desde
+sus propios servidores. Plan gratis *Basic*: **300 canciones al mes** con límite fijo (no cobra de más).
+1. RapidAPI → *YouTube MP3* → **Subscribe** → plan *Basic* ($0) → copiar la `X-RapidAPI-Key`.
+2. GitHub → Secrets → `RAPIDAPI_KEY` con esa clave.
+3. **Actions → Publicar motor en Modal → Run workflow**.
+
+Si RapidAPI falla (sin cuota, servicio caído), el motor intenta igual con yt-dlp. Para saber qué pasó, la
+respuesta de `/estado/{id}` trae un campo `detalle` con el error técnico.
+
+### Cookies (respaldo, opcional)
+yt-dlp puede usar las cookies de una **cuenta de Google secundaria** (nunca la principal), aunque YouTube
+las invalida en pocos días:
 1. Ventana privada → iniciar sesión → `youtube.com/robots.txt` → exportar con la extensión *Get cookies.txt LOCALLY*
    → cerrar la ventana **sin cerrar sesión**.
 2. GitHub → Secrets → `YT_COOKIES` con el contenido del archivo.

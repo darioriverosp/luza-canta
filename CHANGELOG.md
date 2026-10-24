@@ -6,6 +6,13 @@ Todas las versiones de **Luza Canta** (antes *Lucesita Canta*). Formato basado e
 
 ---
 
+## [2.5.0] — 2026-10-24 · YouTube vuelve a funcionar (RapidAPI)
+### Corregido
+- **Link de YouTube:** YouTube bloqueaba a Modal por ser un servidor en la nube (*"Sign in to confirm you're
+  not a bot"*), con cookies o sin ellas y con cualquier reproductor. Ahora el motor pide el MP3 al servicio
+  *YouTube MP3* de RapidAPI (youtube-mp36, plan gratis de 300 canciones/mes, secreto `RAPIDAPI_KEY`);
+  si falla, intenta con yt-dlp (cookies y luego reproductores tv, Safari, móvil…).
+
 ## [2.4.1] — 2026-10-24 · Motor: yt-dlp siempre al día
 ### Corregido
 - Motor: yt-dlp se actualiza (versión *nightly*) al arrancar cada contenedor. Antes se quedaba con la versión

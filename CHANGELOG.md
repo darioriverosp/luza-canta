@@ -6,6 +6,13 @@ Todas las versiones de **Luza Canta** (antes *Lucesita Canta*). Formato basado e
 
 ---
 
+## [2.4.1] — 2026-10-24 · Motor: yt-dlp siempre al día
+### Corregido
+- Motor: yt-dlp se actualiza (versión *nightly*) al arrancar cada contenedor. Antes se quedaba con la versión
+  del día en que se construyó la imagen de Modal y YouTube terminaba bloqueándolo.
+- Motor: `/estado` devuelve aparte un campo `detalle` con el error técnico de yt-dlp (la web no lo muestra);
+  sirve para saber si el problema son las cookies (*"Sign in to confirm you're not a bot"*).
+
 ## [2.4.0] — 2026-10-23 · Compartir la app
 ### Agregado
 - Apartado **Compartir** encima del pie (en *Cantar* y *Mis canciones*): en el celular abre el menú de

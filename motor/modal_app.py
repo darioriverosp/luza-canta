@@ -136,7 +136,12 @@ def _bajar_con_rapidapi(link: str, trabajo):
         raise ErrorAmable(f"La canción dura más de {MAX_MINUTOS} minutos. Elige una más corta.")
 
     archivo = trabajo / "descarga.mp3"
-    bajada = urllib.request.Request(datos["link"], headers={"User-Agent": "Mozilla/5.0"})
+    # El servidor del MP3 responde 404 si la petición no parece de un navegador que viene de RapidAPI
+    bajada = urllib.request.Request(datos["link"], headers={
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/130.0 Safari/537.36",
+        "Referer": "https://rapidapi.com/",
+    })
     with urllib.request.urlopen(bajada, timeout=120) as r, open(archivo, "wb") as f:
         total = 0
         while bloque := r.read(1 << 16):

@@ -120,18 +120,33 @@ def _procesar(origen: dict, trabajo, avisar) -> dict:
             "max_filesize": 60 * 1024 * 1024,
             "match_filter": yt_dlp.utils.match_filter_func(f"duration <= {MAX_MINUTOS * 60}"),
         }
-        # Cookies de una cuenta de YouTube (secreto YT_COOKIES en GitHub) para que YouTube no bloquee al servidor
+        # YouTube pide "demostrar que no eres un robot" a los servidores en la nube. Se prueban, en orden:
+        # las cookies (secreto YT_COOKIES en GitHub, si hay) y luego, sin cookies, otros reproductores de
+        # YouTube (tele, Safari, móvil…) que a veces piden menos verificación. Gana el primero que baje.
+        intentos = []
         if "youtube.com" in os.environ.get("YT_COOKIES", ""):
             (trabajo / "cookies.txt").write_text(os.environ["YT_COOKIES"])
-            opciones["cookiefile"] = str(trabajo / "cookies.txt")
-        try:
-            with yt_dlp.YoutubeDL(opciones) as ydl:
-                info = ydl.extract_info(origen["link"], download=True)
-        except Exception as e:  # noqa: BLE001
-            print(f"yt-dlp: {e}", flush=True)
+            intentos.append(("cookies", {"cookiefile": str(trabajo / "cookies.txt")}))
+        intentos.append(("normal", {}))
+        for cliente in ["tv_simply", "tv", "web_safari", "mweb", "android_vr", "web_embedded"]:
+            intentos.append((cliente, {"extractor_args": {"youtube": {"player_client": [cliente]}}}))
+
+        info, fallos = None, []
+        for nombre, extra in intentos:
+            for viejo in trabajo.glob("descarga.*"):
+                viejo.unlink()
+            try:
+                with yt_dlp.YoutubeDL({**opciones, **extra}) as ydl:
+                    info = ydl.extract_info(origen["link"], download=True)
+                print(f"yt-dlp: bajó con '{nombre}'", flush=True)
+                break
+            except Exception as e:  # noqa: BLE001
+                print(f"yt-dlp [{nombre}]: {e}", flush=True)
+                fallos.append(f"[{nombre}] {str(e)[:160]}")
+        else:
             raise ErrorAmable(
                 "YouTube no dejó bajar esta canción 😕. Descárgala aparte y usa “Subir MP3”."
-                f"{DETALLE}yt-dlp {yt_dlp.version.__version__}: {str(e)[:500]}"
+                f"{DETALLE}yt-dlp {yt_dlp.version.__version__}: " + " | ".join(fallos)
             )
         archivos = list(trabajo.glob("descarga.*"))
         if not info or not archivos:

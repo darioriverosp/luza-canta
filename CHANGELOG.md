@@ -6,6 +6,11 @@ Todas las versiones de **Luza Canta** (antes *Lucesita Canta*). Formato basado e
 
 ---
 
+## [2.5.3] — 2026-10-24 · Motor: descargas de RapidAPI más fiables
+### Corregido
+- Algunas canciones fallaban con *"YouTube no dejó bajar esta canción"*: el servidor que entrega el MP3 de
+  RapidAPI responde 404 si la petición no trae `Referer` ni `User-Agent` de navegador. Ahora los manda.
+
 ## [2.5.2] — 2026-10-24 · Compartir funciona aunque la app esté recién instalada
 ### Corregido
 - Si el service worker aún no estaba listo (app recién instalada o actualizada), *Compartir → Luza* daba

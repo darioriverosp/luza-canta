@@ -16,12 +16,13 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install modal
-      - name: Guardar cookies de YouTube en Modal (opcional)
+      - name: Guardar cookies de YouTube y clave de RapidAPI en Modal (opcionales)
         env:
           MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
           MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
           YT_COOKIES: ${{ secrets.YT_COOKIES }}
-        run: modal secret create luza-youtube YT_COOKIES="${YT_COOKIES:-ninguna}" --force
+          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
+        run: modal secret create luza-youtube YT_COOKIES="${YT_COOKIES:-ninguna}" RAPIDAPI_KEY="${RAPIDAPI_KEY:-ninguna}" --force
       - name: Publicar
         env:
           MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}

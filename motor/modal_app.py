@@ -97,6 +97,59 @@ def _actualizar_ytdlp():
     _ytdlp_al_dia = True  # aunque falle, no se reintenta en cada canción: se usa la versión de la imagen
 
 
+def _clave_rapidapi() -> str:
+    clave = os.environ.get("RAPIDAPI_KEY", "").strip()
+    return "" if clave in ("", "ninguna") else clave
+
+
+def _bajar_con_rapidapi(link: str, trabajo):
+    """Pide el MP3 al servicio "YouTube MP3" de RapidAPI (youtube-mp36), que baja desde sus propios servidores.
+
+    YouTube bloquea a Modal por ser un servidor en la nube; este servicio no tiene ese problema.
+    Plan gratis: 300 canciones al mes. Clave: secreto RAPIDAPI_KEY en GitHub.
+    Devuelve (archivo, título). Si algo falla lanza Exception y se intenta igual con yt-dlp.
+    """
+    import json
+    import re
+    import time
+    import urllib.parse
+    import urllib.request
+
+    m = re.search(r"(?:v=|youtu\.be/|shorts/|embed/|live/)([A-Za-z0-9_-]{11})", link)
+    if not m:
+        raise Exception("no encontré el id del video en el link")
+    anfitrion = "youtube-mp36.p.rapidapi.com"
+    pedido = urllib.request.Request(
+        f"https://{anfitrion}/dl?id={m.group(1)}",
+        headers={"x-rapidapi-key": _clave_rapidapi(), "x-rapidapi-host": anfitrion},
+    )
+    # Si la canción es nueva para el servicio, contesta "processing" unos segundos: se vuelve a preguntar
+    for _ in range(12):
+        with urllib.request.urlopen(pedido, timeout=60) as r:
+            datos = json.loads(r.read())
+        if datos.get("status") != "processing":
+            break
+        time.sleep(5)
+    if datos.get("status") != "ok" or not datos.get("link"):
+        raise Exception(f"respuesta: {json.dumps(datos, ensure_ascii=False)[:200]}")
+    if float(datos.get("duration") or 0) > MAX_MINUTOS * 60:
+        raise ErrorAmable(f"La canción dura más de {MAX_MINUTOS} minutos. Elige una más corta.")
+
+    archivo = trabajo / "descarga.mp3"
+    bajada = urllib.request.Request(datos["link"], headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(bajada, timeout=120) as r, open(archivo, "wb") as f:
+        total = 0
+        while bloque := r.read(1 << 16):
+            total += len(bloque)
+            if total > 60 * 1024 * 1024:
+                raise ErrorAmable("La canción es muy pesada (más de 60 MB). Elige una más corta.")
+            f.write(bloque)
+    if total < 10_000:
+        raise Exception(f"el MP3 bajado está vacío ({total} bytes)")
+    print(f"RapidAPI: bajó {total // 1024} KB", flush=True)
+    return archivo, datos.get("title") or "Canción"
+
+
 def _procesar(origen: dict, trabajo, avisar) -> dict:
     import json
     import os
@@ -105,7 +158,19 @@ def _procesar(origen: dict, trabajo, avisar) -> dict:
 
     titulo = origen.get("titulo") or "Canción"
 
-    if origen.get("link"):
+    original = None
+    fallos = []
+    if origen.get("link") and _clave_rapidapi():
+        avisar("Bajando la canción de YouTube… ▶️")
+        try:
+            original, titulo = _bajar_con_rapidapi(origen["link"], trabajo)
+        except ErrorAmable:
+            raise
+        except Exception as e:  # noqa: BLE001
+            print(f"RapidAPI: {e}", flush=True)
+            fallos.append(f"[rapidapi] {str(e)[:200]}")
+
+    if origen.get("link") and original is None:
         avisar("Preparando la descarga de YouTube… ▶️")
         _actualizar_ytdlp()
         import yt_dlp
@@ -131,7 +196,7 @@ def _procesar(origen: dict, trabajo, avisar) -> dict:
         for cliente in ["tv_simply", "tv", "web_safari", "mweb", "android_vr", "web_embedded"]:
             intentos.append((cliente, {"extractor_args": {"youtube": {"player_client": [cliente]}}}))
 
-        info, fallos = None, []
+        info = None
         for nombre, extra in intentos:
             for viejo in trabajo.glob("descarga.*"):
                 viejo.unlink()
@@ -153,7 +218,7 @@ def _procesar(origen: dict, trabajo, avisar) -> dict:
             raise ErrorAmable(f"No se pudo bajar. ¿La canción dura más de {MAX_MINUTOS} minutos?")
         original = archivos[0]
         titulo = info.get("title") or titulo
-    else:
+    elif original is None:
         original = trabajo / "subida"
         original.write_bytes(origen["audio"])
 

@@ -38,15 +38,12 @@ progreso = modal.Dict.from_name("luza-progreso", create_if_missing=True)
 class ErrorAmable(Exception):
     """Error con un mensaje pensado para mostrárselo a la usuaria tal cual.
 
-    El segundo argumento (opcional) es el detalle técnico: /estado lo devuelve aparte para diagnosticar.
+    Puede llevar al final un detalle técnico tras DETALLE: /estado lo separa y lo devuelve aparte para diagnosticar.
+    (Va en el mismo texto porque Modal, al pasar el error entre contenedores, solo conserva bien un mensaje.)
     """
 
-    def __str__(self):
-        return self.args[0]
 
-    @property
-    def detalle(self):
-        return self.args[1] if len(self.args) > 1 else ""
+DETALLE = "\n[detalle] "
 
 
 @app.function(
@@ -133,8 +130,8 @@ def _procesar(origen: dict, trabajo, avisar) -> dict:
         except Exception as e:  # noqa: BLE001
             print(f"yt-dlp: {e}", flush=True)
             raise ErrorAmable(
-                "YouTube no dejó bajar esta canción 😕. Descárgala aparte y usa “Subir MP3”.",
-                f"yt-dlp {yt_dlp.version.__version__}: {str(e)[:500]}",
+                "YouTube no dejó bajar esta canción 😕. Descárgala aparte y usa “Subir MP3”."
+                f"{DETALLE}yt-dlp {yt_dlp.version.__version__}: {str(e)[:500]}"
             )
         archivos = list(trabajo.glob("descarga.*"))
         if not info or not archivos:
@@ -238,7 +235,8 @@ def web():
         try:
             r = resultado(id_)
         except ErrorAmable as e:
-            return {"listo": False, "error": str(e), "detalle": e.detalle}
+            error, _, detalle = str(e).partition(DETALLE)
+            return {"listo": False, "error": error, "detalle": detalle}
         except Exception as e:  # noqa: BLE001
             print(f"estado {id_}: {e!r}", flush=True)
             return {"listo": False, "error": "Algo salió mal con el motor. Intenta de nuevo."}

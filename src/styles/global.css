@@ -188,6 +188,10 @@ body {
   cursor: pointer;
   background: var(--carta-suave);
   transition: transform 0.15s, border-color 0.15s;
+  /* Que tocarla abra el selector de archivos y no seleccione el texto (pasaba en Opera) */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 .soltar:hover, .soltar.encima { border-color: var(--rosa); transform: scale(1.01); }
 .soltar .icono { font-size: 2.6rem; display: block; }
@@ -392,6 +396,8 @@ dialog label { font-weight: 800; display: block; margin: 12px 0 6px; }
 .ayuda-wa { margin-top: 14px; background: #effff7; border-radius: 16px; padding: 10px 14px; }
 .ayuda-wa summary { cursor: pointer; color: #0b6b3c; }
 .ayuda-wa p { margin: 8px 0 0; }
+.ayuda-archivo { background: #fff6e0; }
+.ayuda-archivo summary { color: #8a4b00; }
 
 /* ---------- Voz guía ---------- */
 .guia { background: linear-gradient(135deg, #dff5ff, #efe4ff); border-radius: 22px; padding: 16px; margin: 12px 0; text-align: center; }

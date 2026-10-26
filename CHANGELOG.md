@@ -6,6 +6,13 @@ Todas las versiones de **Luza Canta** (antes *Lucesita Canta*). Formato basado e
 
 ---
 
+## [2.5.4] — 2026-10-26 · Elegir la canción en el celular
+### Mejorado
+- Al tocar *"Toca aquí para elegir la canción"* ya no se selecciona el texto (pasaba en Opera) y se abre el
+  selector de archivos.
+- Nueva ayuda **📂 ¿No aparece tu canción?**: si el selector dice *"Sin elementos"*, ir a ☰ → *Audio* o
+  *Descargas*; y no usar el *Administrador de archivos*, que reproduce la canción en vez de enviarla a Luza.
+
 ## [2.5.3] — 2026-10-24 · Motor: descargas de RapidAPI más fiables
 ### Corregido
 - Algunas canciones fallaban con *"YouTube no dejó bajar esta canción"*: el servidor que entrega el MP3 de

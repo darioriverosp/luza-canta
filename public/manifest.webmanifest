@@ -42,6 +42,8 @@
           "accept": [
             "audio/*",
             ".mp3",
+            ".mpeg",
+            ".mpga",
             ".m4a",
             ".ogg",
             ".opus",

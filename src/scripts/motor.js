@@ -1,4 +1,4 @@
-// Conexión con el "motor" de IA en Modal (Demucs en una GPU + yt-dlp).
+// Conexión con el "motor" de Luza Canta (el de tu PC por túnel, o el de Modal): quita la voz con Demucs + yt-dlp.
 const CLAVE = 'luza-motor';
 const POR_DEFECTO = 'https://darioriverosp--luza-motor.modal.run';
 
@@ -23,12 +23,23 @@ export function guardarMotor(valor) {
 
 const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function pedir(ruta, opciones) {
+class ErrorConexion extends Error {
+  constructor() {
+    super('No hay conexión con el motor. Revisa el internet e intenta de nuevo.');
+    this.esConexion = true;
+  }
+}
+
+// ngrok pone una página de aviso por delante de las peticiones del navegador;
+// este encabezado se la salta. Los otros motores (Modal, cloudflared) lo ignoran.
+const ENCABEZADOS = () => ({ 'ngrok-skip-browser-warning': 'luza' });
+
+async function pedir(base, ruta, opciones) {
   let r;
   try {
-    r = await fetch(`${obtenerMotor()}${ruta}`, opciones);
+    r = await fetch(`${base}${ruta}`, { ...opciones, headers: { ...ENCABEZADOS(), ...(opciones?.headers || {}) } });
   } catch {
-    throw new Error('No hay conexión con el motor. Revisa el internet e intenta de nuevo.');
+    throw new ErrorConexion();
   }
   if (!r.ok) {
     let detalle = '';
@@ -41,32 +52,78 @@ async function pedir(ruta, opciones) {
 }
 
 /**
+ * Le pide a un motor (el configurado) y, si no hay manera de conectarse, intenta
+ * igual con el de Modal de respaldo. Devuelve { base, r }: hay que seguir
+ * preguntándole a ESE motor (el trabajo quedó en su memoria).
+ */
+async function pedirConRespaldo(ruta, opciones) {
+  const motores = [];
+  for (const m of [obtenerMotor(), POR_DEFECTO]) {
+    const base = m.trim().replace(/\/+$/, '');
+    if (base && !motores.includes(base)) motores.push(base);
+  }
+  let ultimo;
+  for (const base of motores) {
+    try {
+      return { base, r: await pedir(base, ruta, opciones) };
+    } catch (e) {
+      if (e?.esConexion) {
+        ultimo = e;
+        continue;
+      }
+      throw e; // el motor contestó (con un aviso útil): no se reintenta en otro
+    }
+  }
+  throw ultimo || new Error('No hay conexión con el motor.');
+}
+
+// Baja una pista ya lista. Si se corta a medio bajar (señal del celular, pantalla apagada), el
+// navegador da un "Failed to fetch" pelado: se reintenta, la pista sigue guardada en el motor.
+async function bajarPista(base, id, cual) {
+  for (let intento = 1; ; intento++) {
+    try {
+      return await (await pedir(base, `/pista/${encodeURIComponent(id)}/${cual}`)).blob();
+    } catch (e) {
+      if (e?.esConexion === undefined && !(e instanceof TypeError)) throw e; // el motor contestó con un aviso
+      if (intento >= 4) throw new Error('Se cortó el internet mientras bajaban las pistas. Revisa la señal y toca de nuevo “Quitar la voz con IA”.');
+      await esperar(3000 * intento);
+    }
+  }
+}
+
+/**
  * Envía la canción al motor.
  * entrada = { archivo: File } o { youtube: 'https://...' }
  * Devuelve { titulo, instrumental: Blob, voz: Blob }
  */
 export async function separarConIA(entrada, aviso) {
   aviso('Enviando la canción… 📤');
-  let r;
+  let elegido;
   if (entrada.archivo) {
     const datos = new FormData();
     datos.append('archivo', entrada.archivo);
-    r = await pedir('/separar', { method: 'POST', body: datos });
+    elegido = await pedirConRespaldo('/separar', { method: 'POST', body: datos });
   } else {
-    r = await pedir('/youtube', {
+    elegido = await pedirConRespaldo('/youtube', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ link: entrada.youtube }),
     });
   }
-  const { id } = await r.json();
+  const { base } = elegido;
+  let id;
+  try {
+    ({ id } = await elegido.r.json());
+  } catch {
+    throw new ErrorConexion(); // se cortó justo al recibir la respuesta
+  }
 
   const inicio = Date.now();
   let estado;
   while (true) {
     await esperar(3000);
     try {
-      estado = await (await pedir(`/estado/${encodeURIComponent(id)}`)).json();
+      estado = await (await pedir(base, `/estado/${encodeURIComponent(id)}`)).json();
     } catch (e) {
       if (Date.now() - inicio > 15 * 60 * 1000) throw e;
       continue; // un corte de señal momentáneo no detiene el trabajo
@@ -80,8 +137,8 @@ export async function separarConIA(entrada, aviso) {
 
   aviso('Bajando las pistas al celular… 📲');
   const [inst, voz] = await Promise.all([
-    pedir(`/pista/${encodeURIComponent(id)}/instrumental`).then((x) => x.blob()),
-    pedir(`/pista/${encodeURIComponent(id)}/voz`).then((x) => x.blob()),
+    bajarPista(base, id, 'instrumental'),
+    bajarPista(base, id, 'voz'),
   ]);
   return {
     titulo: estado.titulo || entrada.archivo?.name?.replace(/\.[^.]+$/, '') || 'Canción',

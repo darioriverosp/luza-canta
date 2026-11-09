@@ -6,6 +6,18 @@ Todas las versiones de **Luza Canta** (antes *Lucesita Canta*). Formato basado e
 
 ---
 
+## [2.5.6] — 2026-11-09 · Audios de WhatsApp (.mpeg)
+### Corregido
+- Los audios guardados desde WhatsApp Web (`WhatsApp Audio ….mpeg`) no aparecían en el selector: Windows
+  marca `.mpeg` como video y el selector solo aceptaba audio. Ahora acepta `.mpeg`, `.mpga`, `.opus`, `.aac`
+  y `.weba` (también en *Compartir → Luza*). Por dentro son MP3, así que el motor y el Modo rápido los leen igual.
+
+## [2.5.5] — 2026-10-27 · Sin "Failed to fetch"
+### Corregido
+- Si el internet del celular se cortaba mientras bajaban las pistas, salía *"Failed to fetch"* y se perdía la
+  canción. Ahora cada pista se reintenta hasta 4 veces (siguen guardadas en el motor) y, si aun así falla,
+  sale un mensaje en español que pide tocar de nuevo *Quitar la voz con IA*.
+
 ## [2.5.4] — 2026-10-26 · Elegir la canción en el celular
 ### Mejorado
 - Al tocar *"Toca aquí para elegir la canción"* ya no se selecciona el texto (pasaba en Opera) y se abre el

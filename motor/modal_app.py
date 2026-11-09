@@ -234,7 +234,7 @@ def _procesar(origen: dict, trabajo, avisar) -> dict:
     try:
         duracion = float(json.loads(sonda.stdout)["format"]["duration"])
     except (KeyError, ValueError, json.JSONDecodeError):
-        raise ErrorAmable("No pude leer ese archivo. ¿Seguro que es una canción (MP3, M4A, WAV)?")
+        raise ErrorAmable("No pude leer ese archivo. ¿Seguro que es una canción (MP3, audio de WhatsApp, M4A, WAV)?")
     if duracion > MAX_MINUTOS * 60:
         raise ErrorAmable(f"La canción dura más de {MAX_MINUTOS} minutos. Elige una más corta.")
 

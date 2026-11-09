@@ -14,8 +14,8 @@ import Base from '../layouts/Base.astro';
       <label class="soltar" id="soltar">
         <span class="icono">🎵</span>
         <strong>Toca aquí para elegir la canción</strong>
-        <small>MP3, M4A o WAV de tu celular</small>
-        <input type="file" id="archivo" accept="audio/*,.mp3,.m4a,.wav,.ogg,.flac" />
+        <small>MP3, audios de WhatsApp, M4A o WAV</small>
+        <input type="file" id="archivo" accept="audio/*,.mp3,.mpeg,.mpga,.m4a,.wav,.ogg,.opus,.aac,.flac,.weba" />
       </label>
       <p class="elegido" id="elegido" hidden></p>
       <details class="nota ayuda-wa ayuda-archivo">
@@ -167,7 +167,8 @@ import Base from '../layouts/Base.astro';
         await terminar({ ...r, modo: 'ia' });
       } catch (e: any) {
         ocupado(false);
-        mostrarError(e?.message || 'Algo salió mal.');
+        // "Failed to fetch" / "network error" en inglés = se cortó el internet a medio camino
+        mostrarError(e instanceof TypeError ? 'Se cortó la conexión con el motor. Revisa el internet y toca de nuevo “Quitar la voz con IA”.' : e?.message || 'Algo salió mal.');
       }
     });
 

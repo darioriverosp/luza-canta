@@ -41,12 +41,8 @@ import Base from '../layouts/Base.astro';
     <h2><span class="numero">2</span> ¡Quitar la voz!</h2>
     <div class="modos" id="modos">
       <button class="boton boton-grande" id="con-ia">
-        🪄 Quitar la voz con IA
+        ✨ Quitar la voz con IA
         <span class="modo-desc">La mejor calidad · tarda 2 a 4 minutos</span>
-      </button>
-      <button class="boton boton-menta" id="rapido">
-        ⚡ Modo rápido
-        <span class="modo-desc">Al instante en el celular · calidad sencilla</span>
       </button>
     </div>
     <div class="progreso" id="progreso" hidden>
@@ -67,8 +63,6 @@ import Base from '../layouts/Base.astro';
   </section>
 
   <script>
-    import { decodificar, aMp3 } from '../scripts/audio.js';
-    import { separarRapido } from '../scripts/modoRapido.js';
     import { separarConIA, motorConfigurado } from '../scripts/motor.js';
     import { guardar } from '../scripts/historial.js';
     import { montarReproductor } from '../scripts/reproductor.js';
@@ -79,7 +73,6 @@ import Base from '../layouts/Base.astro';
     const archivoInput = $<HTMLInputElement>('archivo');
     const linkInput = $<HTMLInputElement>('link');
     const botonIA = $<HTMLButtonElement>('con-ia');
-    const botonRapido = $<HTMLButtonElement>('rapido');
     const errorBox = $('error');
     let pestana = 'subir';
     let archivo: File | null = null;
@@ -120,7 +113,6 @@ import Base from '../layouts/Base.astro';
     function revisar() {
       const listo = pestana === 'subir' ? !!archivo : esYoutube(linkInput.value);
       paso2.classList.toggle('apagada', !listo);
-      botonRapido.hidden = pestana === 'youtube';
     }
 
     // ---- Progreso ----
@@ -157,7 +149,7 @@ import Base from '../layouts/Base.astro';
     botonIA.addEventListener('click', async () => {
       errorBox.hidden = true;
       if (!motorConfigurado()) {
-        mostrarError('Todavía no está configurado el motor de IA. Toca ⚙️ Ajustes, o usa el Modo rápido.');
+        mostrarError('Todavía no está configurado el motor de IA. Toca ⚙️ Ajustes.');
         return;
       }
       ocupado(true);
@@ -169,26 +161,6 @@ import Base from '../layouts/Base.astro';
         ocupado(false);
         // "Failed to fetch" / "network error" en inglés = se cortó el internet a medio camino
         mostrarError(e instanceof TypeError ? 'Se cortó la conexión con el motor. Revisa el internet y toca de nuevo “Quitar la voz con IA”.' : e?.message || 'Algo salió mal.');
-      }
-    });
-
-    // ---- Modo rápido ----
-    botonRapido.addEventListener('click', async () => {
-      errorBox.hidden = true;
-      if (!archivo) return;
-      ocupado(true);
-      try {
-        progreso('Escuchando la canción… 👂');
-        const buffer = await decodificar(archivo);
-        if (buffer.numberOfChannels < 2) throw new Error('Esta canción es mono (un solo canal) y el modo rápido no puede quitarle la voz. Usa “Quitar la voz con IA”.');
-        progreso('Quitando la voz… ✂️🎤');
-        const { instrumental, voz } = await separarRapido(buffer);
-        const instMp3 = await aMp3(instrumental, { kbps: 128, alAvanzar: (p) => progreso('Preparando la pista… 🎹', p * 0.6) });
-        const vozMp3 = await aMp3(voz, { kbps: 96, alAvanzar: (p) => progreso('Preparando la voz… 🎤', 0.6 + p * 0.4) });
-        await terminar({ titulo: archivo.name.replace(/\.[^.]+$/, ''), instrumental: instMp3, voz: vozMp3, modo: 'rapido' });
-      } catch (e: any) {
-        ocupado(false);
-        mostrarError(e?.message || 'No se pudo leer ese archivo de audio.');
       }
     });
 

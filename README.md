@@ -7,7 +7,7 @@ Se instala en Android como una app (PWA).
 
 👉 **App:** https://luza-canta.netlify.app
 📖 **Cómo funciona todo (arquitectura, IA, costos):** [docs/COMO-FUNCIONA.md](docs/COMO-FUNCIONA.md)
-📝 **Versiones:** [CHANGELOG.md](CHANGELOG.md) · versión actual **2.3.0**
+📝 **Versiones:** [CHANGELOG.md](CHANGELOG.md) · versión actual **2.6.0**
 
 ---
 
@@ -16,7 +16,6 @@ Se instala en Android como una app (PWA).
 |---|---|
 | 🎵 **Elegir canción** | Subir MP3/M4A/WAV, pegar un link de YouTube o *Compartir → Luza* desde WhatsApp |
 | 🪄 **Quitar la voz con IA** | Demucs (`htdemucs`) en la nube; devuelve pista karaoke + voz sola |
-| ⚡ **Modo rápido** | Sin IA ni internet, al instante en el celular (cancelación de fase) |
 | 🎧 **Voz guía** | La voz original bajita (20 % / 35 %) debajo de la pista para aprender la melodía |
 | 🎛️ **Tono** | Subir o bajar hasta 6 semitonos sin cambiar la velocidad |
 | 💬 **WhatsApp** | Enviar la pista o la voz directo a WhatsApp |
@@ -69,7 +68,7 @@ luza-canta/
 │  ├─ layouts/Base.astro       molde común: fondo, logo, menú, ajustes, pie de página
 │  ├─ pages/index.astro        pasos 1-2-3 (elegir, quitar la voz, ¡a cantar!)
 │  ├─ pages/historial.astro    Mis canciones + buscador
-│  ├─ scripts/                 motor.js · modoRapido.js · tono.js · reproductor.js · audio.js · historial.js
+│  ├─ scripts/                 motor.js · tono.js · reproductor.js · audio.js · historial.js
 │  └─ styles/global.css        diseño
 ├─ public/                     manifest.webmanifest · sw.js · icons/
 ├─ motor/modal_app.py          motor de IA (Modal + FastAPI + Demucs + FFmpeg + yt-dlp)

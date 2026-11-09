@@ -207,8 +207,8 @@ tarda (por el tono), la app pide un segundo toque ("✅ Lista · toca para envia
 conexión web no debe quedar colgada tanto tiempo (el celular puede perder señal). Con un **id** el trabajo sigue
 en la nube aunque se corte el internet un momento, y el celular retoma la consulta.
 
-### Modo rápido (sin IA, sin internet)
-Todo pasa en el celular con la Web Audio API (`modoRapido.js`). Ver sección 9.
+### Modo rápido (eliminado en la 2.6.0)
+Hasta la 2.5.6 existía un modo sin IA en el celular. Se quitó por su baja calidad; ver sección 9.
 
 ---
 
@@ -261,7 +261,10 @@ la voz puede dejar un "fantasma"; instrumentos muy parecidos a la voz (violín, 
 
 ---
 
-## 9. El modo rápido (sin IA): cancelación de fase
+## 9. El modo rápido (sin IA): cancelación de fase — eliminado en la 2.6.0
+
+> Se quitó de la app en la versión 2.6.0: dejaba restos de voz, perdía la batería y no servía con audios
+> mono. Queda explicado aquí como referencia.
 
 En la mayoría de canciones de estudio la **voz principal está en el centro**: suena igual en el parlante
 izquierdo (L) y derecho (R). Si restas **L − R**, todo lo que es idéntico en ambos lados **se cancela**:

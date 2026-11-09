@@ -248,7 +248,7 @@ def _procesar(origen: dict, trabajo, avisar) -> dict:
         print(conversion.stderr[-3000:], flush=True)
         raise ErrorAmable("No pude leer ese archivo. ¿Seguro que es una canción (MP3, M4A, WAV)?")
 
-    avisar("La inteligencia artificial está separando la voz… 🪄")
+    avisar("La inteligencia artificial está separando la voz… ✨")
     r = subprocess.run(
         ["python", "-m", "demucs", "-n", MODELO, "--two-stems=vocals", "--mp3", "--mp3-bitrate", "192",
          "-o", str(trabajo / "salida"), str(entrada)],

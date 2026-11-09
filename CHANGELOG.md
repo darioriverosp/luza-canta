@@ -6,6 +6,15 @@ Todas las versiones de **Luza Canta** (antes *Lucesita Canta*). Formato basado e
 
 ---
 
+## [2.6.0] — 2026-11-09 · Solo IA
+### Eliminado
+- **Modo rápido:** la cancelación de fase dejaba restos de voz, perdía la batería, sacaba la pista en mono y no
+  servía con audios mono (como muchos de WhatsApp). Ahora todo pasa por *Quitar la voz con IA*.
+  Las canciones hechas antes con el Modo rápido siguen en *Mis canciones*.
+### Corregido
+- El botón *Quitar la voz con IA* mostraba un cuadro vacío en Windows 10: el emoji 🪄 es muy nuevo para ese
+  sistema. Ahora usa ✨.
+
 ## [2.5.6] — 2026-11-09 · Audios de WhatsApp (.mpeg)
 ### Corregido
 - Los audios guardados desde WhatsApp Web (`WhatsApp Audio ….mpeg`) no aparecían en el selector: Windows
